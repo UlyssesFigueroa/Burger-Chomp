@@ -2,38 +2,49 @@ var express = require("express");
 
 var router = express.Router();
 
-// Import the model (cat.js) to use its database functions.
 var burger = require("../models/burger.js");
 
-// Create all our routes and set up logic within those routes where required.
-router.get("/", function(req, res) {
+router.get("/api/start-chomp", function(req, res) {
   burger.all(function(data) {
-    var hbsObject = {
-      cats: data
+    let burgers = [];
+    let devBurgers = [];
+    data.forEach(function(currentValue){
+      if(currentValue.devoured){
+        devBurgers.push(currentValue);
+      }else{
+        burgers.push(currentValue);
+      }
+    });
+    var burgerObject = {
+      burger: burgers,
+      devoured: devBurgers
     };
-    console.log(hbsObject);
-    res.render("index", hbsObject);
+    console.log(burgerObject);
+    res.render("burgers.handlebars", burgerObject);
   });
 });
 
-router.post("/api/cats", function(req, res) {
+router.get("*", function (req, res) {
+  res.sendFile(path.join(__dirname, "../public/index.html"));
+});
+
+router.post("/api/burger", function(req, res) {
   burger.create([
-    "name", "sleepy"
+    "name", "devoured"
   ], [
-    req.body.name, req.body.sleepy
+    req.body.name, req.body.devoured
   ], function(result) {
-    // Send back the ID of the new quote
     res.json({ id: result.insertId });
   });
 });
 
-router.put("/api/cats/:id", function(req, res) {
+router.put("/api/burger/:id", function(req, res) {
   var condition = "id = " + req.params.id;
 
   console.log("condition", condition);
 
   burger.update({
-    sleepy: req.body.sleepy
+    devoured: req.body.devoured
   }, condition, function(result) {
     if (result.changedRows == 0) {
       // If no rows were changed, then the ID must not exist, so 404
@@ -44,8 +55,9 @@ router.put("/api/cats/:id", function(req, res) {
   });
 });
 
-router.delete("/api/cats/:id", function(req, res) {
+router.delete("/api/burger/:id", function(req, res) {
   var condition = "id = " + req.params.id;
+  console.log("test");
 
   burger.delete(condition, function(result) {
     if (result.affectedRows == 0) {
