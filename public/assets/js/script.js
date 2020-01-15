@@ -5,7 +5,7 @@ $(function () {
     });
 
 
-    $(".btn").on("click", function (event) {
+    $(".devour-btn").on("click", function (event) {
     var id = $(this).data("id");
     var devoured = $(this).data("devour");
         console.log(devoured)
